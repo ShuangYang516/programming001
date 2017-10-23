@@ -1,173 +1,243 @@
+/**************************************************************************************************/
+/* Copyright (C) mc2lab.com, SSE@USTC, 2014-2015                                                  */
+/*                                                                                                */
+/*  FILE NAME             :  menu.c                                                               */
+/*  PRINCIPAL AUTHOR      :  Xia Yue                                                              */
+/*  SUBSYSTEM NAME        :  menu                                                                 */
+/*  MODULE NAME           :  menu                                                                 */
+/*  LANGUAGE              :  C                                                                    */
+/*  TARGET ENVIRONMENT    :  ANY                                                                  */
+/*  DATE OF FIRST RELEASE :  2017/10/19                                                           */
+/*  DESCRIPTION           :  This is a menu program                                               */
+/**************************************************************************************************/
+
+/*
+ * Revision log:
+ *
+ * Created by Xia Yue, 2017/10/19
+ *
+ */
+
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "linktable.h"
-
-void cmdHelp();
-void cmdLs();
-void cmdPs();
-void cmdPwd();
-void cmdDate();
-void cmdAdd();
-void cmdSub();
-void cmdVersion();
-void cmdQuit();
 
 #define CMD_MAX_LEN 128
 #define DESC_LEN    1024
 #define CMD_NUM     10
+
+void help();
+void add();
+void sub();
+void max();
+void min();
+void ls();
+void quit();
+
+/* data struct and its operations */
 typedef struct DataNode
 {
-    tLinkTableNode * pNext;
-    char * cmd;
-    char * desc;
-    void (*handler)();
-}tDataNode;
-
-int SearchCondition(tLinkTableNode * pLinkTableNode, void * args)
+    tLinkTableNode* pNext;
+    char*   cmd;
+    char*   desc;
+    int     (*handler)();
+} tDataNode;
+int SearchCondition(tLinkTableNode* pLinkTableNode, void* args)
 {
-    char* cmd =(char*)args;
+    char *cmd = (char*)args;
     tDataNode * pNode = (tDataNode *)pLinkTableNode;
     if(strcmp(pNode->cmd, cmd) == 0)
     {
-        return  SUCCESS;
+        return  SUCCESS;  
     }
-    return FAILURE;
+    return FAILURE;           
 }
 /* find a cmd in the linklist and return the datanode pointer */
-tDataNode* FindCmd(tLinkTable * head, char * cmd)
+tDataNode* FindCmd(tLinkTable* head, char* cmd)
 {
-    return  (tDataNode*)SearchLinkTableNode(head,SearchCondition,cmd);
+    return  (tDataNode*)SearchLinkTableNode(head, SearchCondition, (void*)cmd);
 }
 /* show all cmd in listlist */
-int ShowAllCmd(tLinkTable * head)
+int ShowAllCmd(tLinkTable* head)
 {
-    tDataNode * pNode = (tDataNode*)GetLinkTableHead(head);
+    tDataNode* pNode = (tDataNode*)GetLinkTableHead(head);
     while(pNode != NULL)
     {
         printf("%s - %s\n", pNode->cmd, pNode->desc);
-        pNode = (tDataNode*)GetNextLinkTableNode(head,(tLinkTableNode *)pNode);
+        pNode = (tDataNode*)GetNextLinkTableNode(head, (tLinkTableNode*)pNode);
     }
     return 0;
 }
-
-
-int InitMenuData(tLinkTable ** ppLinktable)
+int InitMenuData(tLinkTable** ppLinktable)
 {
     *ppLinktable = CreateLinkTable();
-    tDataNode * pNode = (tDataNode *)malloc(sizeof(tDataNode));
-    pNode = (tDataNode *)malloc(sizeof(tDataNode));
+    tDataNode* pNode = (tDataNode*)malloc(sizeof(tDataNode));
     pNode->cmd = "help";
-    pNode->desc = "Show  help list";
-    pNode->handler =cmdHelp;
-    AddLinkTableNode(*ppLinktable, (tLinkTableNode *)pNode);
-    pNode = (tDataNode *)malloc(sizeof(tDataNode));
-    pNode->cmd = "ls";
-    pNode->desc = "List files";
-    pNode->handler = cmdLs;
-    AddLinkTableNode(*ppLinktable, (tLinkTableNode *)pNode);
-    pNode = (tDataNode *)malloc(sizeof(tDataNode));
-    pNode->cmd = "ps";
-    pNode->desc = "List all processes status";
-    pNode->handler = cmdPs;
-    AddLinkTableNode(*ppLinktable, (tLinkTableNode *)pNode);
-    pNode = (tDataNode *)malloc(sizeof(tDataNode));
-    pNode->cmd = "pwd";
-    pNode->desc = "Print working directory";
-    pNode->handler = cmdPwd;
-    AddLinkTableNode(*ppLinktable, (tLinkTableNode *)pNode);
-    pNode = (tDataNode *)malloc(sizeof(tDataNode));
-    pNode->cmd = "date";
-    pNode->desc = "Show current time";
-    pNode->handler = cmdDate;
-    pNode = (tDataNode *)malloc(sizeof(tDataNode));
-    AddLinkTableNode(*ppLinktable, (tLinkTableNode *)pNode);
-    pNode = (tDataNode *)malloc(sizeof(tDataNode));
+    pNode->desc = "help!";
+    pNode->handler = help;
+    AddLinkTableNode(*ppLinktable, (tLinkTableNode*)pNode);
+    pNode = (tDataNode*)malloc(sizeof(tDataNode));
     pNode->cmd = "add";
-    pNode->desc = "add two nums";
-    pNode->handler = cmdAdd;
-    AddLinkTableNode(*ppLinktable, (tLinkTableNode *)pNode);   
+    pNode->desc = "addition";
+    pNode->handler = add; 
+    AddLinkTableNode(*ppLinktable, (tLinkTableNode*)pNode);
+    pNode = (tDataNode*)malloc(sizeof(tDataNode));
     pNode->cmd = "sub";
-    pNode->desc = "Sub two nums ";
-    pNode->handler = cmdSub;
-    AddLinkTableNode(*ppLinktable, (tLinkTableNode *)pNode);
-    pNode->cmd = "version";
-    pNode->desc = "Show the program's version";
-    pNode->handler = cmdVersion;
-    AddLinkTableNode(*ppLinktable, (tLinkTableNode *)pNode);
-    pNode = (tDataNode *)malloc(sizeof(tDataNode));
+    pNode->desc = "sub";
+    pNode->handler = sub; 
+    AddLinkTableNode(*ppLinktable, (tLinkTableNode*)pNode);
+    pNode = (tDataNode*)malloc(sizeof(tDataNode));
+    pNode->cmd = "ls";
+    pNode->desc = "list";
+    pNode->handler = ls; 
+    AddLinkTableNode(*ppLinktable, (tLinkTableNode*)pNode);
+    pNode = (tDataNode*)malloc(sizeof(tDataNode));
+    pNode->cmd = "max";
+    pNode->desc = "max";
+    pNode->handler = max; 
+    AddLinkTableNode(*ppLinktable, (tLinkTableNode*)pNode);
+    pNode = (tDataNode*)malloc(sizeof(tDataNode));
+    pNode->cmd = "min";
+    pNode->desc = "min";
+    pNode->handler = min; 
+    AddLinkTableNode(*ppLinktable, (tLinkTableNode*)pNode);
+    pNode = (tDataNode*)malloc(sizeof(tDataNode));
     pNode->cmd = "quit";
-    pNode->desc = "Quit the program";
-    pNode->handler =cmdQuit;
-    AddLinkTableNode(*ppLinktable, (tLinkTableNode *)pNode);
-    return 0;
+    pNode->desc = "Quit from Menu Program V2.8";
+    pNode->handler = quit; 
+    AddLinkTableNode(*ppLinktable, (tLinkTableNode*)pNode);
+
+    return 0; 
 }
-tLinkTable * head = NULL;
-int main() 
+/* menu program */
+tLinkTable* head = NULL;
+int main()
 {
-    char cmd[CMD_MAX_LEN];
-    InitMenuData(&head);
+    InitMenuData(&head); 
+   /* cmd line begins */
     while(1)
     {
-        printf("Please input the cmd:");
-        scanf("%s",cmd);
-        tDataNode *p = findCmd(head,cmd);
-        if (p == NULL)
+        char cmd[CMD_MAX_LEN];
+        printf("please input a cmd >\n");
+        scanf("%s", cmd);
+        tDataNode* p = FindCmd(head, cmd);
+        if( p == NULL)
         {
-            printf("Error:unkown command!Please check your command again!\n");
+            printf("This is a wrong cmd!\n ");
             continue;
         }
-        if( p->handler != NULL )
-        {
+        printf("%s - %s\n", p->cmd, p->desc); 
+        if(p->handler != NULL) 
+        { 
             p->handler();
         }
+
     }
-    return 0;
 }
 
-void cmdHelp()
+void help()
 {
-    showAllCmds(head);
+    ShowAllCmd(head);
 }
-void cmdLs()
+
+void add()
+{
+    double num1;
+    double num2;
+    double result;
+
+    printf("Addition!Please input two numbers!\n");
+    printf("Use 'Blank' or 'Enter' to divide the two numbers.\n");
+    scanf("%lf%lf", &num1, &num2);
+    result=num1+num2;
+    printf("%.2lf\n", result);
+}
+
+void sub()
+{    
+    double minuend;
+    double meiosis;
+    double result;
+
+    printf("subtraction!Please input two numbers!\n");
+    printf("Use 'Blank' or 'Enter' to divide the two numbers.\n");
+    scanf("%lf%lf", &minuend, &meiosis);
+    result=minuend-meiosis;
+    printf("%.2lf\n", result);
+}
+
+void mul()
+{    
+    double num1;
+    double num2;
+    double result;
+
+    printf("Multiplication!Please input two numbers!\n");
+    printf("Use 'Blank' or 'Enter' to divide the two numbers.\n");
+    scanf("%lf%lf", &num1, &num2);
+    result=num1*num2;
+    printf("%.2lf\n", result);
+}
+
+ void divi()
+{   
+    double dividend;
+    double divisor;
+    double result;
+
+    printf("Divition!Please input two numbers!\n");
+    printf("Use 'Blank' or 'Enter' to divide the two numbers.\n");
+    scanf("%lf%lf", &dividend, &divisor);
+    if(divisor==0)
+    {
+        printf("Error!Dividor can not be zero!\n");
+    }
+    result=dividend / divisor;
+    printf("%.2lf\n", result);
+
+ }
+
+void max()
+{
+    int a,b;
+    int max;
+    printf("please enter two integers:\n");
+    printf("Use 'Blank' or 'Enter' to divide the two numbers.\n");
+    scanf("%d",&a);
+    scanf("%d",&b);
+    if(a>b)
+        max=a;
+    else
+        max=b;
+    printf("the maximum of %d and %d is %d\n",a,b,max);
+}
+
+void min()
+{
+    int a,b;
+    int min;
+    printf("please enter two integers:\n");
+    scanf("%d",&a);
+    scanf("%d",&b);
+    if(a<b)
+         min=a;
+    else
+        min=b;
+    printf("the minimum of %d and %d is %d\n",a,b,min);
+}
+
+void ls()
 {
     system("ls");
 }
-void cmdPs()
-{
-    system("ps");
-}
-void cmdPwd()
-{
-    system("pwd");
-}
-void cmdDate()
-{
-    system("date");
+
+void Error()
+{ 
+    printf("Command not found!\n");
 }
 
-void cmdAdd()
-{
-    int a,b;
-    printf("Please input two nums:");
-    scanf("%d %d",&a,&b);
-    printf("%d+%d=%d\n",a,b,a+b);
-}
-
-void cmdSub()
-{
-    int a,b;
-    printf("Please input two nums:");
-    scanf("%d %d",&a,&b);
-    printf("%d-%d=%d\n",a,b,a-b);
-}
-
-void cmdVersion()
-{
-    printf("This program is v3.0\n");
-}
-
-void Quit()
+void quit()
 {
     exit(0);
 }
